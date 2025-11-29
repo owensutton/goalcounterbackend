@@ -1,0 +1,47 @@
+// User.java
+@Entity
+@Table(name = "users")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class User {
+  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+  private String email;
+  private String passwordHash;
+  private String name;
+  private Instant createdAt = Instant.now();
+}
+
+// Goal.java
+@Entity
+@Table(name = "goals")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Goal {
+  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+  private Long userId;
+  private String title;
+  private Integer targetTotal;
+  private Integer orderIndex;
+  private Instant createdAt = Instant.now();
+  private Instant updatedAt;
+}
+
+// SessionEntry.java
+@Entity
+@Table(name = "sessions")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class SessionEntry {
+  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+  private Long goalId;
+  private Long userId;
+  private Integer amount;
+  private LocalDate sessionDate;
+  private Instant createdAt = Instant.now();
+}

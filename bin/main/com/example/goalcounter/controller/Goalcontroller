@@ -1,0 +1,43 @@
+@RestController
+@RequestMapping("/api/goals")
+@RequiredArgsConstructor
+public class GoalController {
+  private final GoalRepository goalRepo;
+  private final SessionRepository sessionRepo;
+
+  @GetMapping
+  public List<Goal> getGoals(@AuthenticationPrincipal JwtUserDetails user) {
+    return goalRepo.findByUserIdOrderByOrderIndexAsc(user.getId());
+  }
+
+  @PostMapping
+  public Goal createGoal(@AuthenticationPrincipal JwtUserDetails user,
+                         @RequestBody CreateGoalDTO dto) {
+    Goal g = new Goal();
+    g.setUserId(user.getId());
+    g.setTitle(dto.getTitle());
+    g.setTargetTotal(dto.getTargetTotal());
+    // set orderIndex to max + 1
+    Integer max = goalRepo.findByUserIdOrderByOrderIndexAsc(user.getId())
+                 .stream().map(Goal::getOrderIndex).max(Integer::compareTo).orElse(0);
+    g.setOrderIndex(max + 1);
+    g.setCreatedAt(Instant.now());
+    return goalRepo.save(g);
+  }
+
+  @PutMapping("/reorder")
+  public ResponseEntity<?> reorder(@AuthenticationPrincipal JwtUserDetails user,
+                                   @RequestBody ReorderDTO dto) {
+    List<Goal> goals = goalRepo.findAllById(dto.getOrderedGoalIds());
+    // simple approach: iterate and set orderIndex according to dto order
+    for (int i = 0; i < dto.getOrderedGoalIds().size(); i++) {
+      Long id = dto.getOrderedGoalIds().get(i);
+      goals.stream().filter(g->g.getId().equals(id)).findFirst().ifPresent(g->{
+         g.setOrderIndex(i);
+      });
+    }
+    goalRepo.saveAll(goals);
+    return ResponseEntity.ok().build();
+  }
+
+}

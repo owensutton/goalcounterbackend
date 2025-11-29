@@ -1,0 +1,12 @@
+public interface UserRepository extends JpaRepository<User, Long> {
+  Optional<User> findByEmail(String email);
+}
+
+public interface GoalRepository extends JpaRepository<Goal, Long> {
+  List<Goal> findByUserIdOrderByOrderIndexAsc(Long userId);
+}
+
+public interface SessionRepository extends JpaRepository<SessionEntry, Long> {
+  List<SessionEntry> findByGoalIdAndSessionDateBetween(Long goalId, LocalDate start, LocalDate end);
+  List<SessionEntry> findByGoalId(Long goalId);
+}
